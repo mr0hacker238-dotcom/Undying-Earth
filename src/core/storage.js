@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { safeParse, sha256, isInt, sanitizeText } from './security.js';
 
+/** Return a clean state object, or null if the data is invalid. Never trust loaded fields as-is. */
 export function validateState(s) {
   if (!s || typeof s !== 'object') return null;
   if (!isInt(s.night, 0, 1_000_000)) return null;
@@ -26,21 +27,26 @@ export async function saveGame(state) {
     localStorage.setItem(CONFIG.SAVE_KEY, JSON.stringify({ body, sum }));
     return true;
   } catch {
-    return false;
+    return false; // storage full, blocked, or unavailable
+  }
+}
+
+/** Returns the saved game if there is a valid one, otherwise null. */
+export async function readSave() {
+  try {
+    const raw = localStorage.getItem(CONFIG.SAVE_KEY);
+    if (!raw) return null;
+    const wrapper = safeParse(raw, CONFIG.MAX_SAVE_BYTES * 2);
+    if (!wrapper || typeof wrapper.body !== 'string') return null;
+    if ((await sha256(wrapper.body + CONFIG.SAVE_SALT)) !== wrapper.sum) return null;
+    const data = safeParse(wrapper.body, CONFIG.MAX_SAVE_BYTES);
+    if (!data || data.v !== CONFIG.SAVE_VERSION) return null; // future: run migrations here
+    return validateState(data.state);
+  } catch {
+    return null;
   }
 }
 
 export async function loadGame() {
-  try {
-    const raw = localStorage.getItem(CONFIG.SAVE_KEY);
-    if (!raw) return newState();
-    const wrapper = safeParse(raw, CONFIG.MAX_SAVE_BYTES * 2);
-    if (!wrapper || typeof wrapper.body !== 'string') return newState();
-    if ((await sha256(wrapper.body + CONFIG.SAVE_SALT)) !== wrapper.sum) return newState();
-    const data = safeParse(wrapper.body, CONFIG.MAX_SAVE_BYTES);
-    if (!data || data.v !== CONFIG.SAVE_VERSION) return newState();
-    return validateState(data.state) ?? newState();
-  } catch {
-    return newState();
-  }
+  return (await readSave()) ?? newState();
 }
