@@ -1,7 +1,7 @@
 // Central, frozen game constants. Nothing else should hard-code these values.
 export const CONFIG = Object.freeze({
   NAME: 'Undying Earth',
-  VERSION: '0.0.2',
+  VERSION: '0.1.0',
   SAVE_KEY: 'ue_save',
   SAVE_VERSION: 1,
   MAX_SAVE_BYTES: 200_000,
