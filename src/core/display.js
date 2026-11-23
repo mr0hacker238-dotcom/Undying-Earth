@@ -4,7 +4,7 @@ import { CONFIG } from '../config.js';
 // pausing when the player leaves, and keeping the screen awake.
 
 const root = document.documentElement;
-export const display = { width: 0, height: 0, scale: 1, dpr: 1, started: false, paused: true };
+export const display = { width: 0, height: 0, scale: 1, dpr: 1, started: false, paused: false, hint: '' };
 
 const handlers = { resize: [], pause: [], resume: [] };
 export const on = (event, fn) => { handlers[event]?.push(fn); };
@@ -12,8 +12,8 @@ const emit = (event) => handlers[event].forEach((fn) => fn(display));
 
 const $ = (id) => document.getElementById(id);
 const isTouch = () => matchMedia('(pointer: coarse)').matches;
-const isFullscreen = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
-const canFullscreen = () => !!(root.requestFullscreen || root.webkitRequestFullscreen);
+export const isFullscreen = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+export const canFullscreen = () => !!(root.requestFullscreen || root.webkitRequestFullscreen);
 
 let canvas = null;
 let wake = null;
@@ -35,13 +35,13 @@ function resize() {
   canvas.height = display.height;
   canvas.style.width = `${(display.width * scale) / dpr}px`;
   canvas.style.height = `${(display.height * scale) / dpr}px`;
-  $('rotate').hidden = !(display.started && needsRotate());
+  $('rotate').hidden = !needsRotate();
   updatePause();
   emit('resize');
 }
 
 function updatePause() {
-  const shouldPause = !display.started || document.hidden || needsRotate();
+  const shouldPause = document.hidden || needsRotate();
   if (shouldPause === display.paused) return;
   display.paused = shouldPause;
   if (shouldPause) emit('pause');
@@ -72,11 +72,12 @@ export async function toggleFullscreen() {
   } catch { /* the browser refused: ignore */ }
 }
 
-function startPlaying() {
+/** Call from the first tap / key press ("click anywhere to continue"). */
+export function begin() {
+  if (display.started) return;
   display.started = true;
-  $('start').hidden = true;
   if (isTouch() && canFullscreen() && !isFullscreen()) toggleFullscreen();
-  resize();
+  acquireWake();
 }
 
 export function initDisplay(canvasEl) {
@@ -87,10 +88,8 @@ export function initDisplay(canvasEl) {
     fsBtn.hidden = false;
     fsBtn.addEventListener('click', toggleFullscreen);
   } else if (isTouch()) {
-    $('hint').textContent = 'For fullscreen on iPhone: tap Share, then Add to Home Screen.';
+    display.hint = 'ADD TO HOME SCREEN FOR FULLSCREEN';
   }
-
-  $('start-btn').addEventListener('click', startPlaying);
 
   addEventListener('resize', resize);
   addEventListener('orientationchange', resize);
