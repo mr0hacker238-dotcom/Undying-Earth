@@ -1,7 +1,7 @@
 // Central, frozen game constants. Nothing else should hard-code these values.
 export const CONFIG = Object.freeze({
   NAME: 'Undying Earth',
-  VERSION: '0.1.0',
+  VERSION: '0.1.1',
   SAVE_KEY: 'ue_save',
   SAVE_VERSION: 1,
   MAX_SAVE_BYTES: 200_000,
@@ -11,6 +11,9 @@ export const CONFIG = Object.freeze({
   MAX_BASES: 20,
   MAX_SURVIVORS: 500,
   MAX_NAME_LENGTH: 24,
+  MAX_WORLDS: 10,
+  WORLDS_KEY: 'ue_worlds',
+  SETTINGS_KEY: 'ue_settings',
 
   // Display: the game is drawn at a small fixed height and scaled up by whole
   // numbers, so pixel art stays sharp on every screen.
