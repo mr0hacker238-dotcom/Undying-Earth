@@ -26,3 +26,18 @@ button {
   background: rgba(201, 214, 195, 0.25); color: #c9d6c3; font-size: 22px;
 }
 #fs-btn[hidden] { display: none; }
+
+/* Measures the phone's safe area (camera cutout etc.) so the game can read it. */
+#safe {
+  position: fixed; left: 0; top: 0; width: 0; height: 0; visibility: hidden; pointer-events: none;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+
+/* World name box, placed over the canvas by the menu while creating or editing a world. */
+#name-input {
+  position: fixed; z-index: 6; box-sizing: border-box; margin: 0; padding: 0 10px;
+  font-family: ui-monospace, Menlo, Consolas, monospace; color: #c9d6c3; background: #05030a;
+  border: 2px solid #c9d6c3; border-radius: 0; outline: none; user-select: text; -webkit-user-select: text;
+}
+#name-input:focus { border-color: #ee6a4d; }
+#name-input[hidden] { display: none; }
