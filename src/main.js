@@ -1,24 +1,19 @@
 import { display, initDisplay } from './core/display.js';
-import { readSave } from './core/storage.js';
+import { initWorlds } from './core/worlds.js';
 import { createMenu } from './ui/menu.js';
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
-const logo = new Image();
-logo.src = 'assets/logo/undying-earth-logo-1x.png';
+const planet = new Image();
+planet.src = 'assets/logo/undying-earth-planet-1x.png';
 
-// Placeholders until the login system exists.
+// Placeholder until the login system exists.
 const session = { name: 'GUEST' };
-const save = { exists: false, night: 0 };
 
-const menu = createMenu({ ctx, canvas, logo, save, session });
+const menu = createMenu({ ctx, canvas, planet, session, nameInput: document.getElementById('name-input') });
 initDisplay(canvas);
-
-readSave().then((s) => {
-  save.exists = !!s;
-  save.night = s ? s.night : 0;
-});
+initWorlds();
 
 function frame() {
   if (!display.paused) menu.draw();
