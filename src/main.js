@@ -6,7 +6,7 @@ const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
 const planet = new Image();
-planet.src = 'assets/logo/undying-earth-planet-1x.png';
+planet.src = 'assets/logo/mainlogo-1x.png';
 
 // Placeholder until the login system exists.
 const session = { name: 'GUEST' };
